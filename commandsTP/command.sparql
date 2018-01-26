@@ -1,0 +1,98 @@
+TP 4 de BDD : requetes SPARQL
+
+#Sélectionne l'ensemble des classes disponibles
+SELECT DISTINCT ?class
+WHERE {
+  ?id rdf:type ?class .
+}
+
+#Sélectionne les triplets de gènes et les triplets de protéines
+PREFIX core:<http://purl.uniprot.org/core/>
+SELECT ?id ?pred ?ress
+WHERE 
+{
+  {
+  ?id rdf:type core:Gene .
+    ?id ?pred ?ress .
+  }
+  UNION { ?id rdf:type core:Protein .
+             ?id ?pred ?ress .
+             }
+  }
+ORDER BY ?id ?ress
+
+#Sélectionne tous les triplets de la protéine P04275
+PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
+SELECT ?pred ?ress
+WHERE 
+{
+  uniprot:P04275 ?pred ?ress .
+  }	
+#Le nombre de triplets pour cette protéine:
+PREFIX uniprot:<http://purl.uniprot.org/uniprot/>
+SELECT (COUNT(?ress) as ?nbTrip)
+WHERE 
+{
+  uniprot:P04275 ?pred ?ress .
+  }
+
+#Sélectionne les fullname +/- les shortname : version avec l'utilisation de UNION
+PREFIX core:<http://purl.uniprot.org/core/>
+SELECT ?id ?fullName ?shortName
+WHERE 
+{
+  {
+    ?id rdf:type core:Protein .
+    ?id core:recommendedName ?recName .
+    ?recName core:fullName ?fullName .
+    ?recName core:shortName ?shortName .
+    }
+  UNION
+  {
+    ?id rdf:type core:Protein .
+    ?id core:recommendedName ?recName .
+    ?recName core:fullName ?fullName .
+    FILTER NOT EXISTS{?recName core:shortName ?shortName .}
+    }
+}
+ORDER BY ?fullName
+
+#Sélectionne les fullname +/- les shortname : version avec l'utilisation de OPTIONAL
+PREFIX core:<http://purl.uniprot.org/core/>
+SELECT ?id ?fullName ?shortName
+WHERE 
+{
+    ?id rdf:type core:Protein .
+    ?id core:recommendedName ?recName .
+    ?recName core:fullName ?fullName .
+    OPTIONAL {
+      ?recName core:shortName ?shortName .
+    }
+}
+
+#Renvoine le nombre d'interactions pour chaque protéine (classé par ordre décroissant)
+PREFIX core:<http://purl.uniprot.org/core/>
+SELECT ?id (COUNT (?int) As ?nbint)
+WHERE {
+  ?id rdf:type core:Protein .
+  ?id core:interaction ?int .
+  }
+GROUP BY ?id
+HAVING (?nbint > 0)
+ORDER BY DESC (?nbint)
+
+#Retourne un article à chaque fois qu'il cite une protéine si sa date de parution est ultérieure à 2014
+PREFIX core: <http://purl.uniprot.org/core/>
+SELECT ?idProt (concat (STR(?title) ,'/', STR(?date), '/', STR(?journal), '/', STR((GROUP_CONCAT(?auth)))) as ?info) ?cit 
+WHERE
+  {
+  ?idProt rdf:type core:Protein .
+  ?idProt  core:citation ?cit .
+    ?cit core:title ?title .
+    ?cit core:date ?date .
+    ?cit core:name ?journal .
+    ?cit core:author ?auth .
+    FILTER (STR(?date)>'2014')
+     }
+GROUP BY ?idProt ?cit ?title ?date ?journal
+ORDER BY ?idProt ?cit

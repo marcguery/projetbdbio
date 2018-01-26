@@ -1,0 +1,10 @@
+SELECT G.gene_id || ', ' || G.start || ', ' || G.stop || ', ' || G.gene || ', ' || G.GeneID  || ', ' || G.locus_tag AS Coords FROM Genes G;
+SELECT * FROM Genes G WHERE G.locus_tag IS NOT NULL ORDER BY G.gene DESC;
+SELECT T.CDS_id, G.gene_id, G.Gene FROM Transcripts T INNER JOIN Genes G ON T.GeneID=G.GeneID WHERE T.product LIKE '%hypothetical%';
+SELECT T.CDS_id, T.product FROM Transcripts T INNER JOIN Genes G ON T.locus_tag=G.locus_tag;
+SELECT (T1.CDS_id || ', ' || T1.product) AS T1, (T2.CDS_id || ', ' || T2.product) AS T2 FROM Transcripts T1 INNER JOIN Transcripts T2 ON T1.CDS_id < T2.CDS_id WHERE T1.strand = T2.strand AND T1.locus_tag IN (SELECT G.locus_tag FROM Genes G WHERE G.gene LIKE 'BALF%' AND G.locus_tag IS NOT NULL) AND T2.locus_tag IN (SELECT G.locus_tag FROM Genes G WHERE G.gene LIKE 'BALF%' AND G.locus_tag IS NOT NULL);
+SELECT G.gene FROM Genes G WHERE G.locus_tag LIKE '%P%' UNION SELECT G.gene FROM Genes G INNER JOIN Exons E ON G.gene=E.gene WHERE E.product IS NOT NULL;
+SELECT COUNT (T.CDS_id) FROM Transcripts T INNER JOIN Genes G ON T.GeneID=G.GeneID GROUP BY G.gene ORDER BY COUNT (T.CDS_id) DESC;
+SELECT MIN(LENGTH(T.translation)) AS MinTrans, MAX(LENGTH(T.Translation)) AS MaxTrans FROM Transcripts T INNER JOIN Genes G ON T.GeneID=G.GeneID WHERE G.gene IN (SELECT E.gene FROM Exons E);
+SELECT E.gene, COUNT(E.exon_id) AS NbExon, COUNT(E.number) AS Nbnumber, COUNT(DISTINCT(E.number)) AS NbnumberDiff FROM Exons E GROUP BY E.gene HAVING COUNT (E.exon_id) > 1;
+SELECT E.gene, E.number FROM Exons E ORDER BY E.number;

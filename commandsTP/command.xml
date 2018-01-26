@@ -1,0 +1,46 @@
+/
+//protein
+//protein/recommendedName/fullName/text()
+//organism/dbReference
+//citation[fn:not(fn:contains(@type, 'journal'))]
+//citation[fn:number(@date) > 2008]/title
+//*[@evidence]
+
+#Les balises scope sont des suites d'item (certaines) à cause des []
+for $x in //reference
+let $keyword := $x/scope/text()
+let $title := $x/citation/title
+  for $y in $keyword
+  where fn:contains($y, 'CRYS')
+return $title
+
+#
+let $x := fn:distinct-values(//dbReference[@type='NCBI Taxonomy']/@id)
+for $id in $x
+return <a href='{fn:concat("http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=", $id)}'>
+{$id}
+</a>
+
+for $x in //entry
+let $name := $x/protein/recommendedName/fullName/text()
+return <accessions name='{$name}'>{
+  for $acc in $x/accession/text()
+  return <ref>
+  {$acc}
+  </ref>
+}
+</accessions>
+
+let $first := //authorList/person[1]/@name
+let $dis := distinct-values($first)
+for $nameDis in $dis
+let $num := count(
+  for $nameSev in $first
+  order by $nameSev
+  where $nameSev = $nameDis
+  return string($nameSev))
+where $nameDis
+order by $num descending
+return <nbFirstAuthor name='{string($nameDis)}'>
+{$num}
+</nbFirstAuthor>
