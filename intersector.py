@@ -494,7 +494,7 @@ WHERE
 		idGene=trip[1].split('/')[-1]
 		idProt=trip[0].split('/')[-1]
 		datasGene = "'"+str(idGene)+"'"+","+"'"+str(None)+"'"+","+"'"+str(None)+"'"+","+"'"+str(None)+"'"+","+"'"+str(None)+"'"+","+"'"+str(None)+"'"
-		datasTrans=str(135+index)+","+'"'+str(None)+'"'+","+'"'+str(idGene)+'"'+","+'"'+str(idProt)+'"'
+		
 		cur.executescript("""INSERT INTO 
 			Gene(idG, 
 			nomG, 
@@ -504,19 +504,20 @@ WHERE
 			referenceG) 
 			VALUES ("""+datasGene+""");
 			""")
-		cur.executescript("""INSERT INTO 
+
+		queryRef = 'SELECT idP, idR FROM ReferenceP;'
+		reference = virusdb.query_select(queryRef)
+		for idRef in reference:
+			if idRef[1]==idProt:
+				cur.executescript("UPDATE Proteine SET idT="+str(135+index)+" WHERE idP="+'"'+idRef[0]+'"'+";")
+				datasTrans=str(135+index)+","+'"'+str(None)+'"'+","+'"'+str(idGene)+'"'+","+'"'+str(idRef[0])+'"'
+				cur.executescript("""INSERT INTO 
 			Transcript(idT,
 			nomT,
 			idG,
 			idP)
 			VALUES ("""+datasTrans+""");
 			""")
-		queryRef = 'SELECT idP, idR FROM ReferenceP;'
-		reference = virusdb.query_select(queryRef)
-		for idRef in reference:
-			if idRef[1]==idProt:
-				cur.executescript("UPDATE Proteine SET idT="+str(135+index)+" WHERE idP="+'"'+idRef[0]+'"'+";")
-
 
 insertRdfToSchema()
 
