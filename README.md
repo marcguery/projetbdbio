@@ -11,6 +11,7 @@ python3 intersector.py
 Qui crée un fichier _EbvDatabase.sqlite_ utilisable dans sqlitestudio
 
 **Ressources originales utilisées** : _interactions-PMID-17446270.json_ et _tp4.ttl_
+
 **Ressources modifiées utilisées** : _tp2.sql_ -> _tp2Virus.sqlite_ et _tp3.xml_ -> _tp3corrected.xml_ (strip namespaces)
 
 Le script n'est pas commenté, mais il est organisé en fonctions dont les noms sont (plus ou moins) explicites...
