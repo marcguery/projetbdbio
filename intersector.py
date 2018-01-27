@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 import sqlite3
 import wrappers.wrapper_sql as sql
 import wrappers.wrapper_xml as xml
 import wrappers.wrapper_json as json
 import wrappers.wrapper_rdf as rdf
 import pprint as pp
-from lxml import etree
 
-con = sqlite3.connect("TestDatabase.sqlite")
+con = sqlite3.connect("EbvDatabase.sqlite")
 cur = con.cursor()
 
 def resetDb():
@@ -416,8 +415,8 @@ def loadJson (resultRefXml):
 loadJson(resRefXml)
 
 def insertRdfToSchema():
-	virusdb = sql.WrapperSQLite("TestDatabase.sqlite")
-	virusdb.connect_db("TestDatabase.sqlite")
+	virusdb = sql.WrapperSQLite("EbvDatabase.sqlite")
+	virusdb.connect_db("EbvDatabase.sqlite")
 	queryRef = 'SELECT idP, idR FROM ReferenceP;'
 	reference = virusdb.query_select(queryRef)
 	tp4db= rdf.WrapperRDF('sources/tp4.ttl', 'n3')
